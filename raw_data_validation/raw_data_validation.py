@@ -8,19 +8,26 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 def resolve_path(path):
+    base_from_file = Path(__file__).resolve().parents[1]
+    normalized = path.replace("refference", "reference")
+    swapped = path.replace("reference", "refference")
+
     candidates = [
-        path,
-        path.replace("refference", "reference"),
-        path.replace("reference", "refference"),
-        os.path.join("/opt/airflow", path),
-        os.path.join("/opt/airflow", path.replace("refference", "reference")),
-        os.path.join("/mnt/data", os.path.basename(path)),
-        os.path.join("data/raw", os.path.basename(path)),
-        os.path.join(os.getcwd(), path),
+        Path(path),
+        Path(normalized),
+        Path(swapped),
+        base_from_file / path,
+        base_from_file / normalized,
+        base_from_file / swapped,
+        Path("/opt/airflow") / path,
+        Path("/opt/airflow") / normalized,
+        Path("/mnt/data") / Path(path).name,
+        Path("data/raw") / Path(path).name,
+        Path.cwd() / path,
     ]
     for p in candidates:
-        if os.path.exists(p):
-            return p
+        if p.exists():
+            return str(p)
     return path
 
 def validate_manifest(filepath, base_dir="data/raw"):
