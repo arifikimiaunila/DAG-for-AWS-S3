@@ -1,11 +1,3 @@
-"""Build Gold FINAL LENGKAP - FIX ALL
-FIX:
-1. order_360 6446 fail -> shipping_revenue dari o + SUM discount
-2. dif 1 -> ROUND 2 digit + toleransi 0.01
-3. silver.campaign_events does not exist -> WHERE FALSE
-4. refunds NOT NULL -> COALESCE 0 + dynamic cols
-SEMUA FUNGSI TETAP ADA
-"""
 from __future__ import annotations
 import os
 from datetime import UTC, datetime
