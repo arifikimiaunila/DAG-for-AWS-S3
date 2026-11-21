@@ -1,23 +1,31 @@
-import psycopg2
+import os
 import traceback
+import psycopg2
 
 def get_conn():
-    for conn_id in ["postgres", "postgres_default", "airflow_db"]:
+    for conn_id in ["retail_postgres", "postgres", "postgres_default", "airflow_db"]:
         try:
             from airflow.hooks.base import BaseHook
             c = BaseHook.get_connection(conn_id)
             conn = psycopg2.connect(
-                host=c.host or "postgres", 
-                port=c.port or 5432, 
-                dbname=c.schema or "retail_analytics", 
-                user=c.login or "retail", 
-                password=c.password or "retail"
+                host=c.host or os.getenv("POSTGRES_HOST", os.getenv("DB_HOST", "postgres")),
+                port=c.port or int(os.getenv("POSTGRES_PORT", os.getenv("DB_PORT", "5432"))),
+                dbname=c.schema or os.getenv("POSTGRES_DB", os.getenv("DB_NAME", "retail_analytics")),
+                user=c.login or os.getenv("POSTGRES_USER", os.getenv("DB_USER", "retail")),
+                password=c.password or os.getenv("POSTGRES_PASSWORD", os.getenv("DB_PASSWORD", "retail")),
             )
             conn.autocommit = True
             return conn
-        except: 
+        except Exception:
             continue
-    conn = psycopg2.connect(host="postgres", port=5432, dbname="retail_analytics", user="retail", password="retail")
+
+    conn = psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", os.getenv("DB_HOST", "postgres")),
+        port=int(os.getenv("POSTGRES_PORT", os.getenv("DB_PORT", "5432"))),
+        dbname=os.getenv("POSTGRES_DB", os.getenv("DB_NAME", "retail_analytics")),
+        user=os.getenv("POSTGRES_USER", os.getenv("DB_USER", "retail")),
+        password=os.getenv("POSTGRES_PASSWORD", os.getenv("DB_PASSWORD", "retail")),
+    )
     conn.autocommit = True
     return conn
 
